@@ -1,0 +1,78 @@
+npm init: initializes and includes npm tool to my project
+
+Express JS is not the only framework I could use to work with Node JS. There is 
+also Vanilla Node JS.
+
+####MIDDLEWARE#####
+A request is funelled through bunch of functions by express js before a respose is
+sent. I can plug in any 3rd party functionality in this middleware. Express JS
+will have the request run through that functionality.
+
+use method allows us to add new middleware functions. It accepts an array of
+request handlers.
+
+####How Express JS works####
+if html tags are sent via the send method, Express automatically responds with
+a full-fledged html page.
+if the the parameter to send method contains anythin outher than html, then
+either binary or json format is forced.
+
+###Templating engine####
+I can build template HTMLs, with html tags and some blanks(place holders)
+A templating engine reads the html template and reads Express contents and fill 
+those placeholders with those Express contents. This is done on the fly on the
+server.
+
+EJS(js template language), Jade(custom template language) and Handlebars(custom template language) 
+are some of the templating engines
+
+####Layouts#####
+These files are used to help me load the base structure of every html page
+without having to write them in every page.
+Other pug files can extend this layout file and add stuff to it.
+"Block" keyword helps extend layout files
+
+#####handlebars####
+declaring the template engine doesn't work as it was shown in the tutorial.
+While declaring the template engine, the following format has to be followed
+expressFunction.engine(
+    "hbs",
+    expressHbs({
+      extname: "hbs",
+      defaultLayout: false,
+    })
+);
+
+####ejs####
+ejs has this feature called "Partials" which can be reused accross ejs files.
+These partials can be used as templates
+
+partials are ejs files. We can import them in other ejs files.
+The following two lines are two ways of importing ejs partials
+
+#####very important######
+<%= include('path/to/the/partial') => This doesn't render the html code rather
+prints the code like text. This is done to prevent XSS attacks
+
+<%- include('path/to/the/partial') => This runs the html code in the partial
+
+**Templating engines caches generated htmls for the event that input to the page
+doesn't change. In this way, html doesn't have to be generated every time. Response
+becomes faster.
+
+#####The error with writing file####
+The reason was npm. Whenever I entered a new product, the details about 
+the product would be written to a JSON file within the project. Hence nmp would
+keep restarting. So, the redirection to shop.ejs would break at times. The shop
+page would be unavailable temporarily. Sometimes the browser would show a cached
+version/broken version without the css applied to it. 
+
+I tried two different things.
+1) I wrote the details about a product in file external to the project. npm
+didn't restart and the problem went away. 
+2) I started the server without using npm. The problem never ocurred.
+
+
+#####Query Parameters#####
+Whatever follows in the url after the question mark are the query Parameters
+Those parameters don't change the route. They are called optional data
