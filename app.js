@@ -9,6 +9,8 @@ const defaultController = require('./controllers/defaultPage');
 const sequelize = require('./util/database');
 const Product = require('./models/product');
 const User = require('./models/user');
+const Cart = require('./models/cart');
+const CartItem = require('./models/cart-item');
 
 const expressFunction = express();
 
@@ -62,12 +64,18 @@ expressFunction.use("/", defaultController.notFound);
 Product.belongsTo(User, {constraints: true, onDelete:'CASCADE'});
 User.hasMany(Product);
 
+User.hasOne(Cart);
+Cart.belongsTo(User);
+
+Cart.belongsToMany(Product, {through: CartItem});
+Product.belongsToMany(Cart, {through: CartItem});
+
 //npm start runs this whenever app.js is restarted
 //create all the defined(in models folder) tables
 //doesn't overwrite if the table already exists
 // {force: true} options forces all the updates
-// sequelize.sync({force:true}).then(result=>{
-sequelize.sync().then(result=>{
+sequelize.sync({force:true}).then(result=>{
+// sequelize.sync().then(result=>{
     
     return User.findByPk(1);
 

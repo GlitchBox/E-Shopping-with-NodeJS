@@ -76,3 +76,10 @@ didn't restart and the problem went away.
 #####Query Parameters#####
 Whatever follows in the url after the question mark are the query Parameters
 Those parameters don't change the route. They are called optional data
+
+#####Sequelize######
+A.hasMany(B) is good for one-to-Many Relationships. This method call will place
+the id of A as foreign key in B.
+
+B.belongsToMany(A) creates a Many-to-Many relationship between A and B via
+a join table. Many-to-many relationships ought to be created via join tables
