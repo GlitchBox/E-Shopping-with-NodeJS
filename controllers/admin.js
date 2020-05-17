@@ -22,13 +22,15 @@ exports.postAddProduct = (request, response, next)=>{
     const description = request.body.description;
     //const newProduct = new Product(null, title, imageUrl, description, price);
     
-    Product.create({
-        title: title,
+    //if associactions are created like hasMany-belongsTo
+    //sequelize object provides us with different methods like the following
+    request.user.createProduct( {title: title,
         price: price,
         description: description,
-        imageUrl: imageUrl
+        imageUrl: imageUrl,
+        userId: request.user.id
     }).then(result=>{
-        console.log(result);
+        // console.log(result);
         //I can still set "statusCode" to 302 and set setHeader location to the url
         //I'm redirecting to 
         response.redirect("/admin/products");
@@ -56,7 +58,11 @@ exports.getEditProduct = (request, response, next)=>{
     }
     //now that I'm sure I'm in edit mode
     const productID = request.params.productID;
-    Product.findByPk(productID).then(product=>{
+    // Product.findByPk(productID)
+    request.user.getProducts({where: {id:productID} })
+    // .then(product=>{
+    .then(products=>{
+        const product = products[0];
 
         if(!product){
             response.redirect("/admin/products");
@@ -114,7 +120,9 @@ exports.postDeleteProduct = (request, response, next)=>{
 
 exports.getProductList = (request, response, next)=>{
     
-    Product.findAll().then(products=>{
+    // Product.findAll()
+    request.user.getProducts()
+    .then(products=>{
         
         response.render(path.join('admin', 'product-list'), {
             pageTitle:'Admin Products', 
