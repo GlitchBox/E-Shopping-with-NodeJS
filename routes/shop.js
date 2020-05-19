@@ -27,6 +27,8 @@ router.post("/download", shopController.postDownload);
 
 router.get("/home", shopController.getIndex);
 
+router.post("/create-order", shopController.postOrder);
+
 router.get("/", shopController.getIndex);
 
 //I'm exporting the router object for other modules(js files) to use.

@@ -1,6 +1,5 @@
 const Product = require('../models/product');
 const path = require('path');
-const Cart = require('../models/cart');
 const rootDir = require('../util/path');
 
 exports.getProducts = (request, response, next)=>{
@@ -192,8 +191,53 @@ exports.getCheckout = (request, response, next)=>{
 
 exports.getOrders = (request, response, next)=>{
     
-    response.render(path.join('shop', 'orders'), {
-        path:'/orders',
-        pageTitle:'Your Orders'
-    })
+    request.user.getOrders({include: ['products']}).then(orders=>{
+        
+        //can't call orders.getProducts because orders is a list of orders
+        //we can call getProducts on each order
+        //just like we called getProducts on cart, beacause 
+        //there was just one cart
+
+        //hence we resort to 'eager loading'
+        //when we fetch a list of orders, we also fetch a list of 
+        //all related products
+        response.render(path.join('shop', 'orders'), {
+            path:'/orders',
+            pageTitle:'Your Orders',
+            orders: orders
+        });
+        
+    }).catch(err=>{
+        console.log(err);
+    });
+
 };
+
+exports.postOrder = (request, response, next)=>{
+
+    let cartProducts;
+    let fetchedCart;
+
+    request.user.getCart().then(cart=>{
+
+        fetchedCart = cart;
+        return cart.getProducts();
+    }).then(products=>{
+
+        cartProducts = products;
+        return request.user.createOrder();
+    }).then(order=>{
+
+        return order.addProducts(cartProducts.map(product=>{
+            
+            product.orderItem = {quantity: product.cartItem.quantity}; 
+            return product;
+        }));
+    }).then(result=>{
+
+        fetchedCart.setProducts(null);
+        response.redirect("/orders");
+    }).catch(err=>{
+        console.log(err);
+    })
+}; 
