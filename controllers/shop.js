@@ -91,48 +91,83 @@ exports.getIndex = (request, response, next)=>{
 
 exports.getCart = (request, response, next)=>{
 
-    Cart.getCart(cart=>{
-        
-        const cartProducts = [];
-        Product.fetchAll(products=>{
+    request.user.getCart().then(cart=>{
 
-            for(product of products){
-
-                const foundInCart = cart.products.find(prod=>prod.id===product.id);
-                if(foundInCart){
-                    cartProducts.push({productData: product, quantity: foundInCart.quantity});
-                }
-            }
-            console.log(cartProducts);
+        return cart.getProducts().then(products=>{
+                
             response.render(path.join('shop', 'cart'),{
                 path:'/cart',
                 pageTitle:'Your Cart',
-                products: cartProducts
+                products: products
             
             });
-        });
+
+        }).catch(err=>{
+            console.log(err);
+        })
+    }).catch(err=>{
+        console.log(err);
     });
+
 
 };
 
 exports.postCart = (request, response, next)=>{
+    
     const productID = request.body.productID;
-    //console.log(productID);
+    let fetchedCart;
+    let newQuantity = 1;
 
-    Product.findByID(productID, product=>{
-        Cart.addProduct(product.id, product.price);
+    request.user.getCart().then(cart=>{
+
+        fetchedCart = cart;
+        return cart.getProducts({where: {id:productID}});
+    
+    }).then(products=>{
+
+        let product;
+        //getProducts will always return an array, even if there is a single product in the cart
+        if(products.length>0){
+            product = products[0];
+        }
+
+        if(product){
+            
+            const oldQuantity = product.cartItem.quantity;
+            newQuantity = oldQuantity + 1;
+            return Promise.resolve(product);
+        }
+
+        return Product.findByPk(productID);
+    }).then(product=>{
+            
+        return fetchedCart.addProduct(product, {through: {quantity: newQuantity}});
+    }).then(updatedCart=>{
+        
+        response.redirect("/cart");
+    }).catch(err=>{
+        console.log(err);
     });
-    response.redirect("/cart");
 };
 
 exports.postDeleteCart = (request, response, next)=>{
     
     const productID = request.body.id;
-    Product.findByID(productID, (product)=>{
-        Cart.deleteProduct(productID, product.id, ()=>{
+    request.user.getCart().then(cart=>{
 
-            response.redirect("/cart");
-        });
+        //not only I get all the info related to products
+        //but also I get info related to the cart item associated 
+        //with that product
+        return cart.getProducts({where: {id: productID}});
+    }).then(products=>{
+        let product = products[0];
+
+        return product.cartItem.destroy();
+    }).then(result=>{
+        
+        response.redirect('/cart');
+    }).catch(err=>{
+        console.log(err);
     })
 };
 
@@ -141,8 +176,8 @@ exports.postDownload = (request, response, next)=>{
     const productID = request.body.productID;
     //console.log(productID);
 
-    Product.findByID(productID, product=>{
-        response.download("/"+product.title+".pdf", product.title+".pdf", {root: path.join(rootDir, 'downloads')});
+    Product.findByPk(productID).then(product=>{
+        response.download("/"+"A Thousand Splendid Suns"+".pdf", product.title+".pdf", {root: path.join(rootDir, 'downloads')});
     });
 }
 

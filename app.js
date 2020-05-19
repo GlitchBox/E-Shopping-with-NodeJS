@@ -73,9 +73,10 @@ Product.belongsToMany(Cart, {through: CartItem});
 //npm start runs this whenever app.js is restarted
 //create all the defined(in models folder) tables
 //doesn't overwrite if the table already exists
+
 // {force: true} options forces all the updates
-sequelize.sync({force:true}).then(result=>{
-// sequelize.sync().then(result=>{
+// sequelize.sync({force:true}).then(result=>{
+sequelize.sync().then(result=>{
     
     return User.findByPk(1);
 
@@ -90,9 +91,14 @@ sequelize.sync({force:true}).then(result=>{
 
     return Promise.resolve(user);
 
-}).then(user=>{
+})
+// .then(user=>{
     
-    // console.log(result);
+//    return user.createCart();
+
+// })
+.then(cart=>{
+
     //expressFunction is called with every request
     const server = http.createServer(expressFunction);
     server.listen(port=6789, hostname="localhost");
