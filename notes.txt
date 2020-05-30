@@ -83,3 +83,8 @@ the id of A as foreign key in B.
 
 B.belongsToMany(A) creates a Many-to-Many relationship between A and B via
 a join table. Many-to-many relationships ought to be created via join tables
+
+######MONGO DB########
+I'll put the document I put in Mongo DB in JSON format. Mongo DB transforms the 
+JSON in BSON(Binary JSON) behind the scene. In NoSQL world records are known as 
+documents and tables are known as collections.
