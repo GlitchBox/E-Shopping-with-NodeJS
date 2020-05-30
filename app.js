@@ -3,8 +3,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 
-// const adminRoutes = require('./routes/admin');
-// const shopRoutes = require('./routes/shop');
+const adminRoutes = require('./routes/admin');
+const shopRoutes = require('./routes/shop');
 const defaultController = require('./controllers/defaultPage');
 // const sequelize = require('./util/database');
 // const Product = require('./models/product');
@@ -13,7 +13,7 @@ const defaultController = require('./controllers/defaultPage');
 // const CartItem = require('./models/cart-item');
 // const Order = require('./models/order');
 // const OrderItem = require('./models/oder-item');
-const mongoConnect = require('./util/database');
+const mongoConnect = require('./util/database').mongoConnect;
 
 const expressFunction = express();
 
@@ -52,12 +52,13 @@ expressFunction.use((request, response, next)=>{
     // }).catch(err=>{
     //     console.log(err);
     // });
+    next();
 });
 
 //routes that start with "/admin"
-// expressFunction.use('/admin', adminRoutes);
+expressFunction.use('/admin', adminRoutes);
 // //routes that start with "/"
-// expressFunction.use(shopRoutes);
+expressFunction.use(shopRoutes);
 expressFunction.use("/", defaultController.notFound);
 
 //before I create and update tables(by using sync method), I'll establish relationships
@@ -116,9 +117,8 @@ expressFunction.use("/", defaultController.notFound);
 //     console.log(err);
 // });
 
-mongoConnect(client=>{
+mongoConnect(()=>{
     
-    console.log(client);
 
     //expressFunction is called with every request
     const server = http.createServer(expressFunction);

@@ -20,19 +20,21 @@ exports.postAddProduct = (request, response, next)=>{
     const imageUrl = request.body.imageUrl;
     const price = request.body.price;
     const description = request.body.description;
-    //const newProduct = new Product(null, title, imageUrl, description, price);
+    const newProduct = new Product(title, price, description, imageUrl);
     
     //if associactions are created like hasMany-belongsTo
     //sequelize object provides us with different methods like the following
-    request.user.createProduct( {title: title,
-        price: price,
-        description: description,
-        imageUrl: imageUrl,
-        userId: request.user.id
-    }).then(result=>{
+    // request.user.createProduct( {title: title,
+    //     price: price,
+    //     description: description,
+    //     imageUrl: imageUrl,
+    //     userId: request.user.id
+    // }).then(result=>{
+    newProduct.save().then(result=>{
         // console.log(result);
         //I can still set "statusCode" to 302 and set setHeader location to the url
-        //I'm redirecting to 
+        //I'm redirecting to
+        console.log("INSERTION complete!"); 
         response.redirect("/admin/products");
     
     }).catch(err=>{
@@ -58,11 +60,12 @@ exports.getEditProduct = (request, response, next)=>{
     }
     //now that I'm sure I'm in edit mode
     const productID = request.params.productID;
-    // Product.findByPk(productID)
-    request.user.getProducts({where: {id:productID} })
-    // .then(product=>{
-    .then(products=>{
-        const product = products[0];
+    Product.findById(productID)
+    .then(product=>{
+    //request.user.getProducts({where: {id:productID} })
+
+    // .then(products=>{
+        // const product = products[0];
 
         if(!product){
             response.redirect("/admin/products");
@@ -87,15 +90,19 @@ exports.postEditProduct = (request, response, next)=>{
     const updatedDesc = request.body.description;
     const id = request.body.id;
 
-    Product.findByPk(id).then(product=>{
+    const UpdatedProduct = new Product(updatedTitle, updatedPrice, updatedDesc, updatedImageUrl, id);
+    // Product.findByPk(id).then(product=>{
        
-        product.title = updatedTitle;
-        product.price = updatedPrice;
-        product.description = updatedDesc;
-        product.imageUrl = updatedImageUrl;
+    //     product.title = updatedTitle;
+    //     product.price = updatedPrice;
+    //     product.description = updatedDesc;
+    //     product.imageUrl = updatedImageUrl;
 
-        return product.save();
-    }).then(result=>{
+    //     return product.save();
+    // })
+    UpdatedProduct.save()
+    .then(()=>{
+        console.log("UPDATE complete!");
         response.redirect("/admin/products");
     }).catch(err=>{
         
@@ -108,9 +115,11 @@ exports.postEditProduct = (request, response, next)=>{
 exports.postDeleteProduct = (request, response, next)=>{
 
     const productID = request.body.id;
-    Product.findByPk(productID).then(product=>{
-        return product.destroy();
-    }).then(result=>{
+    // Product.findByPk(productID).then(product=>{
+    //     return product.destroy();
+    // })
+    Product.deleteById(productID)
+    .then(()=>{
         response.redirect('/admin/products');
     }).catch(err=>{
         console.log(err);
@@ -121,7 +130,8 @@ exports.postDeleteProduct = (request, response, next)=>{
 exports.getProductList = (request, response, next)=>{
     
     // Product.findAll()
-    request.user.getProducts()
+    //request.user.getProducts()
+    Product.fetchAll()
     .then(products=>{
         
         response.render(path.join('admin', 'product-list'), {
@@ -133,15 +143,5 @@ exports.getProductList = (request, response, next)=>{
         console.log(err);
     })
     
-    // Product.fetchAll(products=>{
 
-    //     //console.log('shop.js: ',products);
-    //     //using pug template engine
-    //     //response.render('shop', {pageTitle: 'Shop', prodList:  products, path:"/"}); //it knows to look for pug files
-    //     response.render(path.join('admin', 'product-list'), {
-    //         pageTitle:'Admin Products', 
-    //         prodList:products, 
-    //         path: "/admin/product-list", 
-    //     });
-    // });
 };

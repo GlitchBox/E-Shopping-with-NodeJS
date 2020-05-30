@@ -4,7 +4,8 @@ const rootDir = require('../util/path');
 
 exports.getProducts = (request, response, next)=>{
     
-    Product.findAll().then(products=>{
+    Product.fetchAll().then(products=>{
+    // Product.findAll().then(products=>{
         
         response.render(path.join('shop', 'product-list'), {
             pageTitle:'All Products', 
@@ -33,8 +34,9 @@ exports.getDetails = (request, response, next)=>{
     
     const productID = request.params.productID;
 
-    Product.findByPk(productID).then(product=>{
-        
+    // Product.findByPk(productID).then(product=>{
+    Product.findById(productID).then(product=>{
+    
         response.render(path.join('shop', 'product-details'),{
             pageTitle: product.title,
             //path: "/products",
@@ -63,7 +65,8 @@ exports.getDetails = (request, response, next)=>{
 
 exports.getIndex = (request, response, next)=>{
     
-    Product.findAll().then(products=>{
+    Product.fetchAll().then(products=>{
+    // Product.findAll().then(products=>{
         
         response.render(path.join('shop', 'index'), {
             pageTitle: 'Shop', 
