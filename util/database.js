@@ -20,7 +20,7 @@ let _db;
 
 const mongoConnect = (callback)=>{
     
-    MongoClient.connect('mongodb+srv://root:BLEh-1234@cluster0-vsvci.gcp.mongodb.net/shop?retryWrites=true&w=majority')
+    MongoClient.connect('mongodb+srv://root:BLEh-1234@cluster0-5tadv.mongodb.net/shop?retryWrites=true&w=majority')
     .then(client=>{
         
         console.log('Connection complete!');

@@ -78,7 +78,7 @@ const getDB = require('../util/database').getDB;
 
 class Product{
 
-    constructor(title, price, description, imageUrl, id){
+    constructor(title, price, description, imageUrl, id, userId){
 
         this.title = title;
         this.price = price;
@@ -88,6 +88,7 @@ class Product{
         if(id){
             this._id = new mongodb.ObjectId(id);
         }
+        this.userId = new mongodb.ObjectId(userId);
 
     }
 

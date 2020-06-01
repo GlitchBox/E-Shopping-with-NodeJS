@@ -93,84 +93,123 @@ exports.getIndex = (request, response, next)=>{
 
 exports.getCart = (request, response, next)=>{
 
-    request.user.getCart().then(cart=>{
+    //Sequelize codes
+    // request.user.getCart().then(cart=>{
 
-        return cart.getProducts().then(products=>{
+    //     return cart.getProducts().then(products=>{
                 
-            response.render(path.join('shop', 'cart'),{
-                path:'/cart',
-                pageTitle:'Your Cart',
-                products: products
+    //         response.render(path.join('shop', 'cart'),{
+    //             path:'/cart',
+    //             pageTitle:'Your Cart',
+    //             products: products
             
-            });
+    //         });
 
-        }).catch(err=>{
-            console.log(err);
-        })
-    }).catch(err=>{
-        console.log(err);
-    });
+    //     }).catch(err=>{
+    //         console.log(err);
+    //     })
+    // }).catch(err=>{
+    //     console.log(err);
+    // });
 
+    //mongodb codes
+    request.user.getCart()
+                .then(products=>{
+                    response.render(path.join('shop', 'cart'),{
+                        path:'/cart',
+                        pageTitle:'Your Cart',
+                        products: products
+                    
+                    });                    
+                })
+                .catch(err=>{
+                    console.log(err);
+                });
 
 };
 
 exports.postCart = (request, response, next)=>{
     
     const productID = request.body.productID;
-    let fetchedCart;
-    let newQuantity = 1;
+    //mongodb code
+    Product.findById(productID)
+            .then(product=>{
 
-    request.user.getCart().then(cart=>{
+                return request.user.addToCart(product);
+            })
+            .then(result=>{
 
-        fetchedCart = cart;
-        return cart.getProducts({where: {id:productID}});
+                response.redirect("/cart");
+            })
+            .catch(err=>{
+                console.log(err);
+            });
+
+    //Sequelize code
+    // let fetchedCart;
+    // let newQuantity = 1;
+
+    // request.user.getCart().then(cart=>{
+
+    //     fetchedCart = cart;
+    //     return cart.getProducts({where: {id:productID}});
     
-    }).then(products=>{
+    // }).then(products=>{
 
-        let product;
-        //getProducts will always return an array, even if there is a single product in the cart
-        if(products.length>0){
-            product = products[0];
-        }
+    //     let product;
+    //     //getProducts will always return an array, even if there is a single product in the cart
+    //     if(products.length>0){
+    //         product = products[0];
+    //     }
 
-        if(product){
+    //     if(product){
             
-            const oldQuantity = product.cartItem.quantity;
-            newQuantity = oldQuantity + 1;
-            return Promise.resolve(product);
-        }
+    //         const oldQuantity = product.cartItem.quantity;
+    //         newQuantity = oldQuantity + 1;
+    //         return Promise.resolve(product);
+    //     }
 
-        return Product.findByPk(productID);
-    }).then(product=>{
+    //     return Product.findByPk(productID);
+    // }).then(product=>{
             
-        return fetchedCart.addProduct(product, {through: {quantity: newQuantity}});
-    }).then(updatedCart=>{
+    //     return fetchedCart.addProduct(product, {through: {quantity: newQuantity}});
+    // }).then(updatedCart=>{
         
-        response.redirect("/cart");
-    }).catch(err=>{
-        console.log(err);
-    });
+    //     response.redirect("/cart");
+    // }).catch(err=>{
+    //     console.log(err);
+    // });
 };
 
 exports.postDeleteCart = (request, response, next)=>{
     
     const productID = request.body.id;
-    request.user.getCart().then(cart=>{
+    //mongodb code
+    request.user.deleteCartItem(productID)
+                .then(()=>{
+                    response.redirect('/cart');
+                })
+                .catch(err=>{
+                    console.log(err);
+                });
 
-        //not only I get all the info related to products
-        //but also I get info related to the cart item associated 
-        //with that product
-        return cart.getProducts({where: {id: productID}});
-    }).then(products=>{
-        let product = products[0];
+    //Sequelize code
+    // request.user.getCart().then(cart=>{
 
-        return product.cartItem.destroy();
-    }).then(result=>{
+    //     //not only I get all the info related to products
+    //     //but also I get info related to the cart item associated 
+    //     //with that product
+    //     return cart.getProducts({where: {id: productID}});
+    // }).then(products=>{
+    //     let product = products[0];
+
+    //     return product.cartItem.destroy();
+    // }).then(result=>{
         
-        response.redirect('/cart');
-    }).catch(err=>{
-        console.log(err);
-    })
+    //     response.redirect('/cart');
+    // }).catch(err=>{
+    //     console.log(err);
+    // })
 };
 
 exports.postDownload = (request, response, next)=>{

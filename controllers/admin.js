@@ -20,7 +20,13 @@ exports.postAddProduct = (request, response, next)=>{
     const imageUrl = request.body.imageUrl;
     const price = request.body.price;
     const description = request.body.description;
-    const newProduct = new Product(title, price, description, imageUrl);
+    const newProduct = new Product(title,
+                                    price,
+                                    description,
+                                    imageUrl, 
+                                    null, 
+                                    request.user._id //this is just a string, not mongodb.ObjectId
+                                );
     
     //if associactions are created like hasMany-belongsTo
     //sequelize object provides us with different methods like the following

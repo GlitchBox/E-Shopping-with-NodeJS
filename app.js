@@ -14,6 +14,7 @@ const defaultController = require('./controllers/defaultPage');
 // const Order = require('./models/order');
 // const OrderItem = require('./models/oder-item');
 const mongoConnect = require('./util/database').mongoConnect;
+const User = require('./models/user');
 
 const expressFunction = express();
 
@@ -45,14 +46,19 @@ expressFunction.use(express.static(path.join(__dirname, 'public')));
 //I'll assume every request has been made from the dummy user's accountexp
 expressFunction.use((request, response, next)=>{
 
-    // User.findByPk(1).then(user=>{
-    //     //I can simply add a field to request object
-    //     request.user = user;
-    //     next();
-    // }).catch(err=>{
-    //     console.log(err);
-    // });
-    next();
+    User.findById("5ed4ed834099f974cda47273")
+        .then(user=>{
+        //I can simply add a field to request object
+        //the user returned from mongodb is just an object with fields in the database
+        //it doesn't have the User model's methods
+        //hence I'll transform the user into an object of User model
+
+        request.user = new User(user.name, user.email, user._id, user.cart);
+        next();
+    }).catch(err=>{
+        console.log(err);
+    });
+    // next();
 });
 
 //routes that start with "/admin"
