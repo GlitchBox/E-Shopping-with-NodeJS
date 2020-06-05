@@ -20,6 +20,7 @@ exports.postAddProduct = (request, response, next)=>{
     const imageUrl = request.body.imageUrl;
     const price = request.body.price;
     const description = request.body.description;
+    
     // const newProduct = new Product(title,
     //                                 price,
     //                                 description,
@@ -34,7 +35,8 @@ exports.postAddProduct = (request, response, next)=>{
         title: title,
         imageUrl: imageUrl,
         price: price,
-        description: description
+        description: description,
+        userId: request.user._id
     });
     
     //if associactions are created like hasMany-belongsTo
@@ -186,7 +188,11 @@ exports.getProductList = (request, response, next)=>{
     //mongoose code
     // Product.find().cursor().next()
     Product.find()
+            // .select('title price -_id') //only title and price have been fetched, id and imageUrl have been excluded
+            // .populate('userId')//this fetches all the user info for that userId
             .then(products=>{
+
+                // console.log(products);
                 response.render(path.join('admin', 'product-list'), {
                     pageTitle:'Admin Products', 
                     prodList:products, 

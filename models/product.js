@@ -180,9 +180,14 @@ const Product = new Schema({
     },
     imageUrl: {
         type: String,
+    },
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: 'users', // refers to which model this model is related to
+        required: true
     }
 
 });
 
 // module.exports = Product;
-module.exports = mongoose.model('Products', Product);
+module.exports = mongoose.model('products', Product);
