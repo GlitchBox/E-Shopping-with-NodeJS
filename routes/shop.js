@@ -19,7 +19,7 @@ router.post("/add-to-cart", shopController.postCart);
 
 router.post("/delete-cart-item", shopController.postDeleteCart);
 
-// router.get("/orders", shopController.getOrders);
+router.get("/orders", shopController.getOrders);
 
 // router.get("/checkout", shopController.getCheckout);
 
@@ -27,7 +27,7 @@ router.post("/delete-cart-item", shopController.postDeleteCart);
 
 router.get("/home", shopController.getIndex);
 
-// router.post("/create-order", shopController.postOrder);
+router.post("/create-order", shopController.postOrder);
 
 router.get("/", shopController.getIndex);
 

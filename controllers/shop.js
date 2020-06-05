@@ -233,53 +233,74 @@ exports.getCheckout = (request, response, next)=>{
 
 exports.getOrders = (request, response, next)=>{
     
-    request.user.getOrders({include: ['products']}).then(orders=>{
-        
-        //can't call orders.getProducts because orders is a list of orders
-        //we can call getProducts on each order
-        //just like we called getProducts on cart, beacause 
-        //there was just one cart
+    //mongodb code
+    request.user.getOrder()
+                .then(orders=>{
+                    response.render(path.join('shop', 'orders'), {
+                            path:'/orders',
+                            pageTitle:'Your Orders',
+                            orders: orders
+                        });
+                });
 
-        //hence we resort to 'eager loading'
-        //when we fetch a list of orders, we also fetch a list of 
-        //all related products
-        response.render(path.join('shop', 'orders'), {
-            path:'/orders',
-            pageTitle:'Your Orders',
-            orders: orders
-        });
+    //Sequelize code
+    // request.user.getOrders({include: ['products']}).then(orders=>{
         
-    }).catch(err=>{
-        console.log(err);
-    });
+    //     //can't call orders.getProducts because orders is a list of orders
+    //     //we can call getProducts on each order
+    //     //just like we called getProducts on cart, beacause 
+    //     //there was just one cart
+
+    //     //hence we resort to 'eager loading'
+    //     //when we fetch a list of orders, we also fetch a list of 
+    //     //all related products
+    //     response.render(path.join('shop', 'orders'), {
+    //         path:'/orders',
+    //         pageTitle:'Your Orders',
+    //         orders: orders
+    //     });
+        
+    // }).catch(err=>{
+    //     console.log(err);
+    // });
 
 };
 
 exports.postOrder = (request, response, next)=>{
 
-    let cartProducts;
-    let fetchedCart;
+    //mongodb code
+    request.user.addOrder()
+                .then(()=>{
+                    response.redirect("/orders");
+                })
+                .catch(err=>{
+                    console.log(err);
+                })
+    
+    //Sequelize code
+    // let cartProducts;
+    // let fetchedCart;
 
-    request.user.getCart().then(cart=>{
+    // request.user.getCart().then(cart=>{
 
-        fetchedCart = cart;
-        return cart.getProducts();
-    }).then(products=>{
+    //     fetchedCart = cart;
+    //     return cart.getProducts();
+    // }).then(products=>{
 
-        cartProducts = products;
-        return request.user.createOrder();
-    }).then(order=>{
+    //     cartProducts = products;
+    //     return request.user.createOrder();
+    // }).then(order=>{
 
-        return order.addProducts(cartProducts.map(product=>{
+    //     return order.addProducts(cartProducts.map(product=>{
             
-            product.orderItem = {quantity: product.cartItem.quantity}; 
-            return product;
-        }));
-    }).then(result=>{
+    //         product.orderItem = {quantity: product.cartItem.quantity}; 
+    //         return product;
+    //     }));
+    // }).then(result=>{
 
-        fetchedCart.setProducts(null);
-        response.redirect("/orders");
-    }).catch(err=>{
-        console.log(err);
-    })
+    //     fetchedCart.setProducts(null);
+    //     response.redirect("/orders");
+    // }).catch(err=>{
+    //     console.log(err);
+    // })
 }; 
