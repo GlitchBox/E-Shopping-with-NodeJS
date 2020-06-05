@@ -20,13 +20,22 @@ exports.postAddProduct = (request, response, next)=>{
     const imageUrl = request.body.imageUrl;
     const price = request.body.price;
     const description = request.body.description;
-    const newProduct = new Product(title,
-                                    price,
-                                    description,
-                                    imageUrl, 
-                                    null, 
-                                    request.user._id //this is just a string, not mongodb.ObjectId
-                                );
+    // const newProduct = new Product(title,
+    //                                 price,
+    //                                 description,
+    //                                 imageUrl, 
+    //                                 null, 
+    //                                 request.user._id //this is just a string, not mongodb.ObjectId
+    //                             );
+
+    //mongoose code
+    const newProduct = new Product({
+
+        title: title,
+        imageUrl: imageUrl,
+        price: price,
+        description: description
+    });
     
     //if associactions are created like hasMany-belongsTo
     //sequelize object provides us with different methods like the following
@@ -96,7 +105,29 @@ exports.postEditProduct = (request, response, next)=>{
     const updatedDesc = request.body.description;
     const id = request.body.id;
 
-    const UpdatedProduct = new Product(updatedTitle, updatedPrice, updatedDesc, updatedImageUrl, id);
+    //mongoose code
+    Product.findById(id)
+            .then(product=>{
+
+                product.title = updatedTitle;
+                product.price = updatedPrice;
+                product.imageUrl = updatedImageUrl;
+                product.description = updatedDesc;
+                return product.save();
+            })
+            .then(result=>{
+
+                console.log('Product Update complete!');
+                response.redirect("/admin/products");
+            }) 
+            .catch(err=>{
+                console.log(err);
+            })
+
+    //mongodb code
+    //const UpdatedProduct = new Product(updatedTitle, updatedPrice, updatedDesc, updatedImageUrl, id);
+    
+    //Sequqlize code
     // Product.findByPk(id).then(product=>{
        
     //     product.title = updatedTitle;
@@ -106,14 +137,16 @@ exports.postEditProduct = (request, response, next)=>{
 
     //     return product.save();
     // })
-    UpdatedProduct.save()
-    .then(()=>{
-        console.log("UPDATE complete!");
-        response.redirect("/admin/products");
-    }).catch(err=>{
+
+    //mongodb code
+    // UpdatedProduct.save()
+    // .then(()=>{
+    //     console.log("UPDATE complete!");
+    //     response.redirect("/admin/products");
+    // }).catch(err=>{
         
-        console.log(err);
-    });
+    //     console.log(err);
+    // });
 
 
 };
@@ -124,12 +157,25 @@ exports.postDeleteProduct = (request, response, next)=>{
     // Product.findByPk(productID).then(product=>{
     //     return product.destroy();
     // })
-    Product.deleteById(productID)
-    .then(()=>{
-        response.redirect('/admin/products');
-    }).catch(err=>{
-        console.log(err);
-    });
+    
+    //mongoose code
+    Product.findByIdAndRemove(productID)
+            .then(result=>{
+
+                console.log('Product Deleted!');
+                response.redirect('/admin/products');
+            })
+            .catch(err=>{
+                console.log(err);
+            })
+
+    //mongodb code
+    // Product.deleteById(productID)
+    // .then(()=>{
+    //     response.redirect('/admin/products');
+    // }).catch(err=>{
+    //     console.log(err);
+    // });
   
 };
 
@@ -137,17 +183,33 @@ exports.getProductList = (request, response, next)=>{
     
     // Product.findAll()
     //request.user.getProducts()
-    Product.fetchAll()
-    .then(products=>{
+    //mongoose code
+    // Product.find().cursor().next()
+    Product.find()
+            .then(products=>{
+                response.render(path.join('admin', 'product-list'), {
+                    pageTitle:'Admin Products', 
+                    prodList:products, 
+                    path: "/admin/product-list", 
+                });
+
+            })
+            .catch(err=>{
+                console.log(err);
+            })
+
+    //mongodb code
+    // Product.fetchAll()
+    // .then(products=>{
         
-        response.render(path.join('admin', 'product-list'), {
-            pageTitle:'Admin Products', 
-            prodList:products, 
-            path: "/admin/product-list", 
-        });
-    }).catch(err=>{
-        console.log(err);
-    })
+    //     response.render(path.join('admin', 'product-list'), {
+    //         pageTitle:'Admin Products', 
+    //         prodList:products, 
+    //         path: "/admin/product-list", 
+    //     });
+    // }).catch(err=>{
+    //     console.log(err);
+    // })
     
 
 };

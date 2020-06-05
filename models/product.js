@@ -72,92 +72,117 @@
 //     }
 // });
 
-//following is the code for MongoDB
-const mongodb = require('mongodb');
-const getDB = require('../util/database').getDB;
+//following is the code for raw MongoDB
+// const mongodb = require('mongodb');
+// const getDB = require('../util/database').getDB;
 
-class Product{
+// class Product{
 
-    constructor(title, price, description, imageUrl, id, userId){
+//     constructor(title, price, description, imageUrl, id, userId){
 
-        this.title = title;
-        this.price = price;
-        this.description = description;
-        this.imageUrl = imageUrl;
+//         this.title = title;
+//         this.price = price;
+//         this.description = description;
+//         this.imageUrl = imageUrl;
 
-        if(id){
-            this._id = new mongodb.ObjectId(id);
-        }
-        this.userId = new mongodb.ObjectId(userId);
+//         if(id){
+//             this._id = new mongodb.ObjectId(id);
+//         }
+//         this.userId = new mongodb.ObjectId(userId);
 
-    }
+//     }
 
-    save(){
+//     save(){
 
-        const db = getDB();
-        let dbOp;
+//         const db = getDB();
+//         let dbOp;
 
-        if(!this._id){
-            dbOp = db.collection('products').insertOne(this);
-        }
-        else{
-            dbOp = db.collection('products').updateOne({_id: this._id}, {$set: this});
-        }
+//         if(!this._id){
+//             dbOp = db.collection('products').insertOne(this);
+//         }
+//         else{
+//             dbOp = db.collection('products').updateOne({_id: this._id}, {$set: this});
+//         }
 
-        return dbOp
-                    .then(result=>{
-                        console.log(result);
-                    })
-                    .catch(err=>{
-                        console.log(err);
-                    });
-    }
+//         return dbOp
+//                     .then(result=>{
+//                         console.log(result);
+//                     })
+//                     .catch(err=>{
+//                         console.log(err);
+//                     });
+//     }
 
-    static fetchAll(){
+//     static fetchAll(){
 
-        const db = getDB();
-        //find method returns a cursor object, which allows us to go through 
-        //all the documents found by find
-        return db.collection('products')
-                .find()
-                .toArray()
-                .then(products=>{
+//         const db = getDB();
+//         //find method returns a cursor object, which allows us to go through 
+//         //all the documents found by find
+//         return db.collection('products')
+//                 .find()
+//                 .toArray()
+//                 .then(products=>{
                      
-                    // console.log(products);
-                    return products;
-                })
-                .catch(err=>{
-                    console.log(err);
-                });
+//                     // console.log(products);
+//                     return products;
+//                 })
+//                 .catch(err=>{
+//                     console.log(err);
+//                 });
+//     }
+
+//     static findById(productID){
+
+//         const db = getDB();
+//         return db.collection('products')
+//                 .find({_id: new mongodb.ObjectId(productID)})
+//                 .next() //this gets me the next document, which is also the last and only document in this cursor
+//                 .then(product=>{
+
+//                     return product;
+//                 })
+//                 .catch(err=>{
+//                     console.log(err);
+//                 })
+//     }
+
+//     static deleteById(productID){
+
+//         const db = getDB();
+//         return db.collection('products')
+//                 .deleteOne({_id: new mongodb.ObjectId(productID)})
+//                 .then(result=>{
+//                     console.log('DELETED!');
+//                 })
+//                 .catch(err=>{
+//                     console.log(err);
+//                 });
+//     }
+// };
+
+//mongoose code
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+
+const Product = new Schema({
+
+    title: {
+        type: String,
+        required: true
+    },
+    price: {
+        type: Number,
+        required: true
+    },
+    description: {
+        type: String,
+        required: true
+    },
+    imageUrl: {
+        type: String,
     }
 
-    static findById(productID){
+});
 
-        const db = getDB();
-        return db.collection('products')
-                .find({_id: new mongodb.ObjectId(productID)})
-                .next() //this gets me the next document, which is also the last and only document in this cursor
-                .then(product=>{
-
-                    return product;
-                })
-                .catch(err=>{
-                    console.log(err);
-                })
-    }
-
-    static deleteById(productID){
-
-        const db = getDB();
-        return db.collection('products')
-                .deleteOne({_id: new mongodb.ObjectId(productID)})
-                .then(result=>{
-                    console.log('DELETED!');
-                })
-                .catch(err=>{
-                    console.log(err);
-                });
-    }
-};
-
-module.exports = Product;
+// module.exports = Product;
+module.exports = mongoose.model('Products', Product);

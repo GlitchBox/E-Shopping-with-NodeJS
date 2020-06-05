@@ -6,6 +6,7 @@ const path = require('path');
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const defaultController = require('./controllers/defaultPage');
+
 // const sequelize = require('./util/database');
 // const Product = require('./models/product');
 // const User = require('./models/user');
@@ -13,8 +14,10 @@ const defaultController = require('./controllers/defaultPage');
 // const CartItem = require('./models/cart-item');
 // const Order = require('./models/order');
 // const OrderItem = require('./models/oder-item');
-const mongoConnect = require('./util/database').mongoConnect;
-const User = require('./models/user');
+
+// const mongoConnect = require('./util/database').mongoConnect;
+const mongoose = require('mongoose');
+// const User = require('./models/user');
 
 const expressFunction = express();
 
@@ -46,19 +49,19 @@ expressFunction.use(express.static(path.join(__dirname, 'public')));
 //I'll assume every request has been made from the dummy user's accountexp
 expressFunction.use((request, response, next)=>{
 
-    User.findById("5ed4ed834099f974cda47273")
-        .then(user=>{
-        //I can simply add a field to request object
-        //the user returned from mongodb is just an object with fields in the database
-        //it doesn't have the User model's methods
-        //hence I'll transform the user into an object of User model
+    // User.findById("5ed4ed834099f974cda47273")
+    //     .then(user=>{
+    //     //I can simply add a field to request object
+    //     //the user returned from mongodb is just an object with fields in the database
+    //     //it doesn't have the User model's methods
+    //     //hence I'll transform the user into an object of User model
 
-        request.user = new User(user.name, user.email, user._id, user.cart);
-        next();
-    }).catch(err=>{
-        console.log(err);
-    });
-    // next();
+    //     request.user = new User(user.name, user.email, user._id, user.cart);
+    //     next();
+    // }).catch(err=>{
+    //     console.log(err);
+    // });
+    next();
 });
 
 //routes that start with "/admin"
@@ -123,11 +126,22 @@ expressFunction.use("/", defaultController.notFound);
 //     console.log(err);
 // });
 
-mongoConnect(()=>{
+//Raw mongodb code
+// mongoConnect(()=>{
     
 
-    //expressFunction is called with every request
-    const server = http.createServer(expressFunction);
-    server.listen(port=6789, hostname="localhost");
-});
+//     //expressFunction is called with every request
+//     const server = http.createServer(expressFunction);
+//     server.listen(port=6789, hostname="localhost");
+// });
 
+//mongoose code
+mongoose.connect('mongodb+srv://root:BLEh-1234@cluster0-5tadv.mongodb.net/shop?retryWrites=true&w=majority')
+        .then(result=>{
+            //expressFunction is called with every request
+            const server = http.createServer(expressFunction);
+            server.listen(port=6789, hostname="localhost"); 
+        })
+        .catch(err=>{
+            console.log(err);
+        })

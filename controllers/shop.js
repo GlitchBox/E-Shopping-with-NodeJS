@@ -4,17 +4,31 @@ const rootDir = require('../util/path');
 
 exports.getProducts = (request, response, next)=>{
     
-    Product.fetchAll().then(products=>{
-    // Product.findAll().then(products=>{
+    //mongoose code
+    // Product.find().cursor().next()
+    Product.find()
+            .then(products=>{
+                response.render(path.join('shop', 'product-list'), {
+                        pageTitle:'All Products', 
+                        prodList: products, 
+                        path: "/products", 
+                    });
+            })
+            .catch(err=>{
+                console.log(err);
+            });
+    //mongodb code
+    // Product.fetchAll().then(products=>{
+    // // Product.findAll().then(products=>{
         
-        response.render(path.join('shop', 'product-list'), {
-            pageTitle:'All Products', 
-            prodList: products, 
-            path: "/products", 
-        });    
-    }).catch(err=>{
-        console.log(err);
-    });
+    //     response.render(path.join('shop', 'product-list'), {
+    //         pageTitle:'All Products', 
+    //         prodList: products, 
+    //         path: "/products", 
+    //     });    
+    // }).catch(err=>{
+    //     console.log(err);
+    // });
 
     // Product.fetchAll().then(([rows, fieldData])=>{
 
@@ -35,17 +49,32 @@ exports.getDetails = (request, response, next)=>{
     const productID = request.params.productID;
 
     // Product.findByPk(productID).then(product=>{
-    Product.findById(productID).then(product=>{
+    //mongoose code
+    Product.findById(productID)
+            .then(product=>{
+                response.render(path.join('shop', 'product-details'),{
+                    pageTitle: product.title,
+                    path:"/details",
+                    product: product
+                });   
+
+            })
+            .catch(err=>{
+                console.log(err);
+            })
+
+    //mongodb code
+    // Product.findById(productID).then(product=>{
     
-        response.render(path.join('shop', 'product-details'),{
-            pageTitle: product.title,
-            //path: "/products",
-            path:"/details",
-            product: product
-        });   
-    }).catch(err=>{
-        console.log(err);
-    });
+    //     response.render(path.join('shop', 'product-details'),{
+    //         pageTitle: product.title,
+    //         //path: "/products",
+    //         path:"/details",
+    //         product: product
+    //     });   
+    // }).catch(err=>{
+    //     console.log(err);
+    // });
     // Product.findAll({where: {id:productID}}).then().catch();
 
     // Product.findByID(productID).then(([row])=>{
@@ -65,17 +94,31 @@ exports.getDetails = (request, response, next)=>{
 
 exports.getIndex = (request, response, next)=>{
     
-    Product.fetchAll().then(products=>{
-    // Product.findAll().then(products=>{
-        
-        response.render(path.join('shop', 'index'), {
-            pageTitle: 'Shop', 
-            prodList: products, 
-            path: "/", 
-        });
-    }).catch(err=>{
-        console.log(err);
+    //mongoose code
+    Product.find()
+    .then(products=>{
+        response.render(path.join('shop', 'product-list'), {
+                pageTitle:'Shop', 
+                prodList: products, 
+                path: "/", 
+            });
     })
+    .catch(err=>{
+        console.log(err);
+    });
+
+    //mongodb code
+    // Product.fetchAll().then(products=>{
+    // // Product.findAll().then(products=>{
+        
+    //     response.render(path.join('shop', 'index'), {
+    //         pageTitle: 'Shop', 
+    //         prodList: products, 
+    //         path: "/", 
+    //     });
+    // }).catch(err=>{
+    //     console.log(err);
+    // })
 
     // Product.fetchAll().then(([rows, fieldData])=>{
                 
