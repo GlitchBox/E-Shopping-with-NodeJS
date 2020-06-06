@@ -189,5 +189,6 @@ const Product = new Schema({
 
 });
 
+
 // module.exports = Product;
 module.exports = mongoose.model('products', Product);

@@ -261,6 +261,56 @@ const User = new Schema({
     }
 });
 
+//If arrow function was used, it would have to be bound to Product
+User.methods.addToCart = function(product){
+
+        const cartProductIndex = this.cart.items.findIndex(cartProduct=>{
+
+            return cartProduct.productId.toString() === product._id.toString();
+        });
+
+        let updatedQuantity = 1;
+        const updatedCartItems = [...this.cart.items];
+
+        if(cartProductIndex>-1){
+            updatedQuantity = this.cart.items[cartProductIndex].quantity + 1;
+            updatedCartItems[cartProductIndex].quantity = updatedQuantity;
+        }
+        else{
+
+            updatedCartItems.push({ 
+                productId: product._id, 
+                quantity : updatedQuantity
+            });
+        }
+
+
+        // this.cart = { items: [{ productId: new mongodb.ObjectId(product._id), quantity : updatedQuantity}] }
+        // this.cart = {items:[]};
+
+        this.cart.items = updatedCartItems;
+        return this.save();
+}
+
+User.methods.getCart = function(){
+
+    return this.populate('cart.items.productId')
+                .execPopulate(); //this turns the returned object of populate into a promise
+
+
+}
+
+User.methods.deleteCartItem = function(productId){
+
+    const updatedCartItems = this.cart.items.filter(item=>{
+
+        return item.productId.toString() !== productId.toString();
+    });
+
+    this.cart.items = updatedCartItems;
+    return this.save();
+
+}
 
 // module.exports = User;
 module.exports = mongoose.model('users', User);

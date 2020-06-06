@@ -1,6 +1,7 @@
 const Product = require('../models/product');
 const path = require('path');
 const rootDir = require('../util/path');
+const Order = require('../models/order');
 
 exports.getProducts = (request, response, next)=>{
     
@@ -156,12 +157,35 @@ exports.getCart = (request, response, next)=>{
     // });
 
     //mongodb codes
+    // request.user.getCart()
+    //             .then(products=>{
+    //                 response.render(path.join('shop', 'cart'),{
+    //                     path:'/cart',
+    //                     pageTitle:'Your Cart',
+    //                     products: products
+                    
+    //                 });                    
+    //             })
+    //             .catch(err=>{
+    //                 console.log(err);
+    //             });
+
+    //mongoose code
     request.user.getCart()
-                .then(products=>{
+                .then(user=>{
+                    // console.log(user.cart.items);
+                    //removing products from cart which have been deleted from products
+                    user.cart.items = user.cart.items.filter(item=>{
+
+                        return item.productId;
+                    });
+                    user.save();
+                    // console.log(user.cart.items);
+
                     response.render(path.join('shop', 'cart'),{
                         path:'/cart',
                         pageTitle:'Your Cart',
-                        products: products
+                        products: user.cart.items
                     
                     });                    
                 })
@@ -276,15 +300,28 @@ exports.getCheckout = (request, response, next)=>{
 
 exports.getOrders = (request, response, next)=>{
     
+    //mongoose code
+    Order.find({'user.id': request.user._id})
+            .then(orders=>{
+                response.render(path.join('shop', 'orders'), {
+                    path:'/orders',
+                    pageTitle:'Your Orders',
+                    orders: orders
+                });   
+            })
+            .catch(err=>{
+                console.log(err);
+            });
+
     //mongodb code
-    request.user.getOrder()
-                .then(orders=>{
-                    response.render(path.join('shop', 'orders'), {
-                            path:'/orders',
-                            pageTitle:'Your Orders',
-                            orders: orders
-                        });
-                });
+    // request.user.getOrder()
+    //             .then(orders=>{
+    //                 response.render(path.join('shop', 'orders'), {
+    //                         path:'/orders',
+    //                         pageTitle:'Your Orders',
+    //                         orders: orders
+    //                     });
+    //             });
 
     //Sequelize code
     // request.user.getOrders({include: ['products']}).then(orders=>{
@@ -311,14 +348,46 @@ exports.getOrders = (request, response, next)=>{
 
 exports.postOrder = (request, response, next)=>{
 
+    //mongoose code
+    request.user
+        .populate('cart.items.productId')
+        .execPopulate()
+        .then(user=>{
+            
+            const items = request.user.cart.items.map(item=>{
+
+                return {product: {...item.productId._doc}, quantity: item.quantity};
+            });
+            const newOrder = new Order({
+
+                items: items,
+                user: {
+                    name: request.user.name,
+                    email: request.user.email,
+                    id: request.user._id
+                }
+            });
+            return newOrder.save();
+
+        }).then(result=>{
+
+            request.user.cart.items = [];
+            return request.user.save();
+        }).then(result=>{
+
+            response.redirect('/cart');
+        }).catch(err=>{
+            console.log(err);
+        })
+
     //mongodb code
-    request.user.addOrder()
-                .then(()=>{
-                    response.redirect("/orders");
-                })
-                .catch(err=>{
-                    console.log(err);
-                })
+    // request.user.addOrder()
+    //             .then(()=>{
+    //                 response.redirect("/orders");
+    //             })
+    //             .catch(err=>{
+    //                 console.log(err);
+    //             })
     
     //Sequelize code
     // let cartProducts;

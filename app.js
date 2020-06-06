@@ -157,15 +157,13 @@ mongoose.connect('mongodb+srv://root:BLEh-1234@cluster0-5tadv.mongodb.net/shop?r
                     }
   
                     const server = http.createServer(expressFunction);
-                    server.listen(port=1234, hostname="localhost");
+                    server.listen(port=6789, hostname="localhost");
                 })
                 .catch(err=>{
                     console.log(err);
                 })
 
-            //expressFunction is called with every request
-            const server = http.createServer(expressFunction);
-            server.listen(port=6789, hostname="localhost"); 
+
         })
         .catch(err=>{
             console.log(err);
