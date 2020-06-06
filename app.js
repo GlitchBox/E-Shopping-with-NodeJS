@@ -61,18 +61,15 @@ expressFunction.use(session({
     store: sessionStore
 }));
 
-//this middleware accesses database and retrieves the dummy user with 
-//each request, since authentication hasn't been done yet
-//I'll assume every request has been made from the dummy user's accountexp
+
+//I'll assume every request has been made from the dummy user's account
 expressFunction.use((request, response, next)=>{
 
-    User.findById("5eda492d22d5c264747f355f")
+    if(!request.session.user )
+        return next();
+
+    User.findById(request.session.user._id)
         .then(user=>{
-        //I can simply add a field to request object
-        //the user returned from mongodb is just an object with fields in the database
-        //it doesn't have the User model's methods
-        //hence I'll transform the user into an object of User model
-        
         //mongo db code
         // request.user = new User(user.name, user.email, user._id, user.cart);
         
@@ -86,9 +83,9 @@ expressFunction.use((request, response, next)=>{
 });
 
 //routes that start with "/admin"
+expressFunction.use(authRoutes);
 expressFunction.use('/admin', adminRoutes);
 // //routes that start with "/"
-expressFunction.use(authRoutes);
 expressFunction.use(shopRoutes);
 expressFunction.use("/", defaultController.notFound);
 

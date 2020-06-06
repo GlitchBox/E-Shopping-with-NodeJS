@@ -1,7 +1,9 @@
-<form action="/add-to-cart" method="POST">
-    <button class="btn" type="submit">Add to Cart</button>
-    <input type="hidden" name="productID" value="<%= product._id %>">
-</form>
+<%if(isAuthenticated){%>
+    <form action="/add-to-cart" method="POST">
+        <button class="btn" type="submit">Add to Cart</button>
+        <input type="hidden" name="productID" value="<%= product._id %>">
+    </form>
+<%}%>
 
 <% if(path==="/details"){ %>
     <form action="/download" method="POST">

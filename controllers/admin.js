@@ -7,7 +7,8 @@ exports.getAddProduct = (request, response, next)=>{
     response.render(path.join('admin','edit-product'), {
         pageTitle:"Add Product", 
         path:"/admin/add-product",
-        editing: "false"
+        editing: "false",
+        isAuthenticated: request.session.isLoggedIn
         // If I want to disable the layout, the following field has to be set
         // layout: false
     }); //it knows to look for pug files
@@ -36,7 +37,7 @@ exports.postAddProduct = (request, response, next)=>{
         imageUrl: imageUrl,
         price: price,
         description: description,
-        userId: request.user._id
+        userId: request.session.user._id,
     });
     
     //if associactions are created like hasMany-belongsTo
@@ -92,7 +93,8 @@ exports.getEditProduct = (request, response, next)=>{
             pageTitle: 'Edit Product',
             path: 'admin/edit-product',
             editing: editMode,
-            product: product 
+            product: product,
+            isAuthenticated: request.session.isLoggedIn 
         });
     }).catch(err=>{
         console.log(err);
@@ -196,7 +198,8 @@ exports.getProductList = (request, response, next)=>{
                 response.render(path.join('admin', 'product-list'), {
                     pageTitle:'Admin Products', 
                     prodList:products, 
-                    path: "/admin/product-list", 
+                    path: "/admin/product-list",
+                    isAuthenticated: request.session.isLoggedIn 
                 });
 
             })

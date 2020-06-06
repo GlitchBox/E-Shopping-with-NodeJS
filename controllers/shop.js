@@ -13,6 +13,7 @@ exports.getProducts = (request, response, next)=>{
                         pageTitle:'All Products', 
                         prodList: products, 
                         path: "/products", 
+                        isAuthenticated: request.session.isLoggedIn
                     });
             })
             .catch(err=>{
@@ -56,7 +57,8 @@ exports.getDetails = (request, response, next)=>{
                 response.render(path.join('shop', 'product-details'),{
                     pageTitle: product.title,
                     path:"/details",
-                    product: product
+                    product: product,
+                    isAuthenticated: request.session.isLoggedIn
                 });   
 
             })
@@ -102,6 +104,7 @@ exports.getIndex = (request, response, next)=>{
                 pageTitle:'Shop', 
                 prodList: products, 
                 path: "/", 
+                isAuthenticated: request.session.isLoggedIn
             });
     })
     .catch(err=>{
@@ -185,7 +188,8 @@ exports.getCart = (request, response, next)=>{
                     response.render(path.join('shop', 'cart'),{
                         path:'/cart',
                         pageTitle:'Your Cart',
-                        products: user.cart.items
+                        products: user.cart.items,
+                        isAuthenticated: request.session.isLoggedIn
                     
                     });                    
                 })
@@ -293,7 +297,8 @@ exports.getCheckout = (request, response, next)=>{
 
     response.render(path.join('shop', 'checkout'),{
                         path:'/checkout',
-                        pageTitle:'Checkout'
+                        pageTitle:'Checkout',
+                        isAuthenticated: request.session.isLoggedIn
 
     });
 };
@@ -301,12 +306,13 @@ exports.getCheckout = (request, response, next)=>{
 exports.getOrders = (request, response, next)=>{
     
     //mongoose code
-    Order.find({'user.id': request.user._id})
+    Order.find({'user.id': request.session.user._id})
             .then(orders=>{
                 response.render(path.join('shop', 'orders'), {
                     path:'/orders',
                     pageTitle:'Your Orders',
-                    orders: orders
+                    orders: orders,
+                    isAuthenticated: request.session.isLoggedIn
                 });   
             })
             .catch(err=>{
@@ -354,7 +360,7 @@ exports.postOrder = (request, response, next)=>{
         .execPopulate()
         .then(user=>{
             
-            const items = request.user.cart.items.map(item=>{
+            const items = request.session.user.cart.items.map(item=>{
 
                 return {product: {...item.productId._doc}, quantity: item.quantity};
             });
@@ -362,16 +368,16 @@ exports.postOrder = (request, response, next)=>{
 
                 items: items,
                 user: {
-                    name: request.user.name,
-                    email: request.user.email,
-                    id: request.user._id
+                    name: request.session.user.name,
+                    email: request.session.user.email,
+                    id: request.session.user._id
                 }
             });
             return newOrder.save();
 
         }).then(result=>{
 
-            request.user.cart.items = [];
+            request.session.user.cart.items = [];
             return request.user.save();
         }).then(result=>{
 
