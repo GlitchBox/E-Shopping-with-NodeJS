@@ -2,10 +2,15 @@ const http = require('http');
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
+const session = require('express-session');
+const MongoDBStore = require('connect-mongodb-session')(session);
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
+const authRoutes = require('./routes/auth');
 const defaultController = require('./controllers/defaultPage');
+
+const MONGODB_URI = 'mongodb+srv://root:BLEh-1234@cluster0-5tadv.mongodb.net/shop';
 
 // const sequelize = require('./util/database');
 // const Product = require('./models/product');
@@ -20,6 +25,11 @@ const mongoose = require('mongoose');
 const User = require('./models/user');
 
 const expressFunction = express();
+const sessionStore = new MongoDBStore({
+    uri: MONGODB_URI,
+    collection: 'sessions',
+    //expires:
+});
 
 
 //this set function allows us to set any variable globally
@@ -43,6 +53,13 @@ expressFunction.use(bodyParser.urlencoded({extended: false}));
 //by the file system itself
 //since it is served by the file system(not by url), the full path is required
 expressFunction.use(express.static(path.join(__dirname, 'public')));
+
+expressFunction.use(session({
+    secret: 'my secret', //this should be a long string, this sings the hash
+    resave: false, //the session will not be saved on every request, it will be saved if the session changes somehow, like if the user logs in or logs out
+    saveUninitialized: false, //no session is saved for a request where it doesn't need to be saved because nothing has changed in the session
+    store: sessionStore
+}));
 
 //this middleware accesses database and retrieves the dummy user with 
 //each request, since authentication hasn't been done yet
@@ -71,6 +88,7 @@ expressFunction.use((request, response, next)=>{
 //routes that start with "/admin"
 expressFunction.use('/admin', adminRoutes);
 // //routes that start with "/"
+expressFunction.use(authRoutes);
 expressFunction.use(shopRoutes);
 expressFunction.use("/", defaultController.notFound);
 
@@ -140,7 +158,7 @@ expressFunction.use("/", defaultController.notFound);
 // });
 
 //mongoose code
-mongoose.connect('mongodb+srv://root:BLEh-1234@cluster0-5tadv.mongodb.net/shop?retryWrites=true&w=majority')
+mongoose.connect(MONGODB_URI)
         .then(result=>{
 
             User.findOne()
