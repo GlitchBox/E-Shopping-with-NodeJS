@@ -157,28 +157,8 @@ expressFunction.use("/", defaultController.notFound);
 //mongoose code
 mongoose.connect(MONGODB_URI)
         .then(result=>{
-
-            User.findOne()
-                .then(user=>{
-                    
-                    if(!user){
-                        const newUser = new User({
-
-                            name: "Root",
-                            email: "glitchbox29@gmail.com",
-                            items: []
-                        });
-                        newUser.save();
-                    }
-  
-                    const server = http.createServer(expressFunction);
-                    server.listen(port=6789, hostname="localhost");
-                })
-                .catch(err=>{
-                    console.log(err);
-                })
-
-
+            const server = http.createServer(expressFunction);
+            server.listen(port=6789, hostname="localhost");
         })
         .catch(err=>{
             console.log(err);

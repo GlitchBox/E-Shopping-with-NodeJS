@@ -6,6 +6,11 @@ const Order = require('../models/order');
 exports.getProducts = (request, response, next)=>{
     
     //mongoose code
+    // if(!request.session.user){
+
+    //     return response.redirect('/login');
+    // }
+
     // Product.find().cursor().next()
     Product.find()
             .then(products=>{
@@ -98,6 +103,11 @@ exports.getDetails = (request, response, next)=>{
 exports.getIndex = (request, response, next)=>{
     
     //mongoose code
+    // if(!request.session.user){
+
+    //     return response.redirect('/login');
+    // }
+
     Product.find()
     .then(products=>{
         response.render(path.join('shop', 'product-list'), {
@@ -173,6 +183,10 @@ exports.getCart = (request, response, next)=>{
     //                 console.log(err);
     //             });
 
+    if(!request.session.user){
+
+        return response.redirect('/login');
+    }
     //mongoose code
     request.user.getCart()
                 .then(user=>{
@@ -305,6 +319,10 @@ exports.getCheckout = (request, response, next)=>{
 
 exports.getOrders = (request, response, next)=>{
     
+    if(!request.session.user){
+
+        return response.redirect('/login');
+    }
     //mongoose code
     Order.find({'user.id': request.session.user._id})
             .then(orders=>{
