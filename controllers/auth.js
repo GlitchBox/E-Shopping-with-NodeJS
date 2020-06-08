@@ -21,18 +21,39 @@ exports.getLogin = (request, response, next)=>{
 
 exports.postLogin = (request, response, next)=>{
 
-    User.findById('5eda492d22d5c264747f355f')
+    const email = request.body.email;
+    const password = request.body.password;
+
+    User.findOne({email: email})
         .then(user=>{
 
-            request.session.user = user;
-            if(user)
-                request.session.isLoggedIn = true;
-            request.session.save((err)=>{
+            if(!user){
+                console.log('wrong email!');
+                return response.redirect('/login');
+            }
 
-                if(err)
-                    console.log(err);
-                response.redirect('/');
-            });
+            crypto.compare(password, user.password)
+                    .then(doesMatch=>{
+
+                        if(doesMatch){
+                            request.session.user = user;
+                            request.session.isLoggedIn = true;
+                            return request.session.save((err)=>{
+                
+                                if(err)
+                                    console.log(err);
+                                console.log('Login successful!');
+                                response.redirect('/');
+                            });              
+                        }
+
+                        console.log("Password didn't macth!");
+                        response.redirect('/login');
+
+                    })
+                    .catch(err=>{
+                        console.log(err);
+                    })
 
         })
         .catch(err=>{

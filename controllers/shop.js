@@ -326,6 +326,7 @@ exports.getOrders = (request, response, next)=>{
     //mongoose code
     Order.find({'user.id': request.session.user._id})
             .then(orders=>{
+                console.log(orders);
                 response.render(path.join('shop', 'orders'), {
                     path:'/orders',
                     pageTitle:'Your Orders',
@@ -378,15 +379,14 @@ exports.postOrder = (request, response, next)=>{
         .execPopulate()
         .then(user=>{
             
-            const items = request.session.user.cart.items.map(item=>{
-
+            const items = user.cart.items.map(item=>{
+                // console.log(item);
                 return {product: {...item.productId._doc}, quantity: item.quantity};
             });
             const newOrder = new Order({
 
                 items: items,
                 user: {
-                    name: request.session.user.name,
                     email: request.session.user.email,
                     id: request.session.user._id
                 }
@@ -395,11 +395,11 @@ exports.postOrder = (request, response, next)=>{
 
         }).then(result=>{
 
-            request.session.user.cart.items = [];
+            request.user.cart.items = [];
             return request.user.save();
         }).then(result=>{
 
-            response.redirect('/cart');
+            response.redirect('/orders');
         }).catch(err=>{
             console.log(err);
         })
