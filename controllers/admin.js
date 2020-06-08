@@ -2,13 +2,13 @@ const Product = require('../models/product');
 const path = require('path');
 
 exports.getAddProduct = (request, response, next)=>{
+
     //console.log("In add products GET");
     //response.sendFile(path.join(rootDir, 'views','add-product.html'));
     response.render(path.join('admin','edit-product'), {
         pageTitle:"Add Product", 
         path:"/admin/add-product",
         editing: "false",
-        isAuthenticated: request.session.isLoggedIn
         // If I want to disable the layout, the following field has to be set
         // layout: false
     }); //it knows to look for pug files
@@ -93,8 +93,7 @@ exports.getEditProduct = (request, response, next)=>{
             pageTitle: 'Edit Product',
             path: 'admin/edit-product',
             editing: editMode,
-            product: product,
-            isAuthenticated: request.session.isLoggedIn 
+            product: product, 
         });
     }).catch(err=>{
         console.log(err);
@@ -184,7 +183,7 @@ exports.postDeleteProduct = (request, response, next)=>{
 };
 
 exports.getProductList = (request, response, next)=>{
-    
+
     // Product.findAll()
     //request.user.getProducts()
     //mongoose code
@@ -199,7 +198,6 @@ exports.getProductList = (request, response, next)=>{
                     pageTitle:'Admin Products', 
                     prodList:products, 
                     path: "/admin/product-list",
-                    isAuthenticated: request.session.isLoggedIn 
                 });
 
             })

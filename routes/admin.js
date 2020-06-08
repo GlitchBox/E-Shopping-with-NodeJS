@@ -4,6 +4,7 @@ const expressFunction = require('express');
 const router = expressFunction.Router();
 const path = require('path');
 const rootDir = require('../util/path');
+const isAuth = require('../middleware/is-auth');
 
 const adminController = require('../controllers/admin');
 
@@ -11,20 +12,20 @@ const adminController = require('../controllers/admin');
 
 //route-handling middlewares
 // /admin/add-product => GET
-router.get("/add-product", adminController.getAddProduct);
+router.get("/add-product", isAuth, adminController.getAddProduct);
  
 //the same path can be used if the methods differ(do two different things when
 //the methods differ)
 // /admin/add-product => POST
-router.post("/add-product", adminController.postAddProduct);
+router.post("/add-product", isAuth, adminController.postAddProduct);
 
-router.get("/edit-product/:productID", adminController.getEditProduct);
+router.get("/edit-product/:productID", isAuth, adminController.getEditProduct);
 
-router.post("/edit-product", adminController.postEditProduct);
+router.post("/edit-product", isAuth, adminController.postEditProduct);
 
-router.post("/delete-product", adminController.postDeleteProduct);
+router.post("/delete-product", isAuth, adminController.postDeleteProduct);
 
-router.get("/products", adminController.getProductList);
+router.get("/products", isAuth, adminController.getProductList);
 
 //I'm exporting the router object for other js files to use
 module.exports =router;

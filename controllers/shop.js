@@ -114,7 +114,6 @@ exports.getIndex = (request, response, next)=>{
                 pageTitle:'Shop', 
                 prodList: products, 
                 path: "/", 
-                isAuthenticated: request.session.isLoggedIn
             });
     })
     .catch(err=>{
@@ -183,10 +182,6 @@ exports.getCart = (request, response, next)=>{
     //                 console.log(err);
     //             });
 
-    if(!request.session.user){
-
-        return response.redirect('/login');
-    }
     //mongoose code
     request.user.getCart()
                 .then(user=>{
@@ -319,10 +314,6 @@ exports.getCheckout = (request, response, next)=>{
 
 exports.getOrders = (request, response, next)=>{
     
-    if(!request.session.user){
-
-        return response.redirect('/login');
-    }
     //mongoose code
     Order.find({'user.id': request.session.user._id})
             .then(orders=>{

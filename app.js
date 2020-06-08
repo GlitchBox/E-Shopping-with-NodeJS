@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
+const csrf = require('csurf');
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
@@ -30,6 +31,7 @@ const sessionStore = new MongoDBStore({
     collection: 'sessions',
     //expires:
 });
+const csrfProtection = csrf();
 
 
 //this set function allows us to set any variable globally
@@ -60,6 +62,7 @@ expressFunction.use(session({
     saveUninitialized: false, //no session is saved for a request where it doesn't need to be saved because nothing has changed in the session
     store: sessionStore
 }));
+expressFunction.use(csrfProtection);
 
 
 //I'll assume every request has been made from the dummy user's account
@@ -80,6 +83,12 @@ expressFunction.use((request, response, next)=>{
         console.log(err);
     });
     // next();
+});
+expressFunction.use((request, response, next)=>{
+ 
+    response.locals.isAuthenticated= request.session.isLoggedIn;
+    response.locals.csrfToken = request.csrfToken();
+    next();
 });
 
 //routes that start with "/admin"

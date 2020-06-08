@@ -15,7 +15,6 @@ exports.getLogin = (request, response, next)=>{
     response.render(path.join('auth', 'login'), {
         pageTitle:'Login', 
         path: "/login",
-        isAuthenticated: request.session.isLoggedIn 
     });
 }; 
 
@@ -78,7 +77,6 @@ exports.getSignup = (request, response, next)=>{
     response.render(path.join('auth', 'signup'),{
         pageTitle: 'Signup',
         path:'/signup',
-        isAuthenticated: request.session.isLoggedIn
     });
 };
 
