@@ -5,6 +5,7 @@ const path = require('path');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
+const flash = require('connect-flash');
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
@@ -63,6 +64,7 @@ expressFunction.use(session({
     store: sessionStore
 }));
 expressFunction.use(csrfProtection);
+expressFunction.use(flash());
 
 
 //I'll assume every request has been made from the dummy user's account

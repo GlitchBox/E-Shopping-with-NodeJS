@@ -12,9 +12,23 @@ exports.getLogin = (request, response, next)=>{
     //                     .trim() === 'true';
     // }
     // console.log(request.session.isLoggedIn);
+    let errorMessage = request.flash('error');
+    if(errorMessage && errorMessage.length>0)
+        errorMessage = errorMessage[0];
+    else
+        errorMessage = null;
+
+    let successMessage = request.flash('success');
+    if(successMessage && successMessage.length>0)
+        successMessage = successMessage[0];
+    else
+        successMessage = null;
+
     response.render(path.join('auth', 'login'), {
         pageTitle:'Login', 
         path: "/login",
+        errorMessage: errorMessage,
+        successMessage: successMessage
     });
 }; 
 
@@ -28,6 +42,7 @@ exports.postLogin = (request, response, next)=>{
 
             if(!user){
                 console.log('wrong email!');
+                request.flash('error', 'Invalid email or password!');
                 return response.redirect('/login');
             }
 
@@ -46,6 +61,7 @@ exports.postLogin = (request, response, next)=>{
                             });              
                         }
 
+                        request.flash('error', 'Invalid email or password!');
                         console.log("Password didn't macth!");
                         response.redirect('/login');
 
@@ -73,10 +89,17 @@ exports.postLogout = (request, response, next)=>{
 }
 
 exports.getSignup = (request, response, next)=>{
+    
+    let errorMessage = request.flash('error');
+    if(errorMessage && errorMessage.length>0)
+        errorMessage = errorMessage[0];
+    else
+        errorMessage = null;
 
     response.render(path.join('auth', 'signup'),{
         pageTitle: 'Signup',
         path:'/signup',
+        errorMessage: errorMessage,
     });
 };
 
@@ -98,6 +121,7 @@ exports.postSignup = (request, response, next)=>{
 
             if(user){
                 console.log('User exists!');
+                request.flash('error', 'User already exists!');
                 return response.redirect('/signup');
             }
 
@@ -113,6 +137,7 @@ exports.postSignup = (request, response, next)=>{
                 newUser.save()        
                     .then(result=>{
                     console.log('User has been created!');
+                    request.flash('success', 'Singup sucessful!');
                     response.redirect('/login');
                 });
             });

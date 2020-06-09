@@ -7,6 +7,18 @@
    <%- include('../includes/navigation.ejs') %>
 
     <main>
+        <% if(errorMessage){ %>
+            <div class="user-message user-message--error">
+                <%= errorMessage %>
+            </div>
+
+        <% } else if(successMessage){%>
+            <div class="user-message">
+                <%= successMessage %>
+            </div>
+        <% }%>
+            
+
         <%if(!isAuthenticated){ %>
         <form class="login-form" action="/login" method="POST">
             <div class="form-control">
