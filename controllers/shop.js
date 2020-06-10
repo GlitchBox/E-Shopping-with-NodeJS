@@ -3,6 +3,8 @@ const path = require('path');
 const rootDir = require('../util/path');
 const Order = require('../models/order');
 
+const ITEM_PER_PAGE = 2;
+
 exports.getProducts = (request, response, next)=>{
     
     //mongoose code
@@ -11,19 +13,35 @@ exports.getProducts = (request, response, next)=>{
     //     return response.redirect('/login');
     // }
 
+    let pageNo=1;
+    if(request.query.page)
+        pageNo = parseInt(request.query.page);
+    let totalProducts;
     // Product.find().cursor().next()
-    Product.find()
+    Product.find().countDocuments()
+            .then(productCount=>{
+
+                totalProducts = productCount;
+                return Product.find()
+                                .skip((pageNo-1)*ITEM_PER_PAGE)
+                                .limit(ITEM_PER_PAGE);
+            })
             .then(products=>{
                 response.render(path.join('shop', 'product-list'), {
                         pageTitle:'All Products', 
                         prodList: products, 
                         path: "/products", 
-                        isAuthenticated: request.session.isLoggedIn
+                        currentPage: pageNo,
+                        hasNextPage: pageNo*ITEM_PER_PAGE < totalProducts,
+                        hasPrevPage: pageNo>1,
+                        nextPage: pageNo+1,
+                        prevPage: pageNo-1,
+                        lastPage: Math.ceil(totalProducts/ITEM_PER_PAGE)
                     });
             })
-            .catch(err=>{
-                console.log(err);
-            });
+    .catch(err=>{
+        console.log(err);
+    });
     //mongodb code
     // Product.fetchAll().then(products=>{
     // // Product.findAll().then(products=>{
@@ -107,15 +125,32 @@ exports.getIndex = (request, response, next)=>{
 
     //     return response.redirect('/login');
     // }
+    let pageNo=1;
+    if(request.query.page)
+        pageNo = parseInt(request.query.page);
+    let totalProducts;
+    // Product.find().cursor().next()
+    Product.find().countDocuments()
+            .then(productCount=>{
 
-    Product.find()
-    .then(products=>{
-        response.render(path.join('shop', 'product-list'), {
-                pageTitle:'Shop', 
-                prodList: products, 
-                path: "/", 
-            });
-    })
+                totalProducts = productCount;
+                return Product.find()
+                                .skip((pageNo-1)*ITEM_PER_PAGE)
+                                .limit(ITEM_PER_PAGE);
+            })
+            .then(products=>{
+                response.render(path.join('shop', 'index'), {
+                        pageTitle:'Shop', 
+                        prodList: products, 
+                        path: "/", 
+                        currentPage: pageNo,
+                        hasNextPage: pageNo*ITEM_PER_PAGE < totalProducts,
+                        hasPrevPage: pageNo>1,
+                        nextPage: pageNo+1,
+                        prevPage: pageNo-1,
+                        lastPage: Math.ceil(totalProducts/ITEM_PER_PAGE)
+                    });
+            })
     .catch(err=>{
         console.log(err);
     });
